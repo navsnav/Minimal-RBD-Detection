@@ -72,7 +72,7 @@ filt_flag = 1;
 output_folder = [pwd,'\features'];
 % Create a destination directory if it doesn't exist
 if exist(output_folder, 'dir') ~= 7
-    fprintf('WARNING: Features directory does not exist. Creating new directory ...\n\n');
+    fprintf('WARNING: Output directory does not exist. Creating new directory ...\n\n');
     mkdir(output_folder);
 end
 cd(output_folder);
@@ -108,9 +108,10 @@ Sleep_Struct = rmfield(Sleep_Struct,subject_names(rmv_id));
 outfilename = 'RBD_Detection_Test_Results'; %Filename/Folder to be created
 view_results = 1; %Produce Graphs/figures (set to 1 to observe figures)
 print_figures= 1; %Save Graphs/figures (set to 1 to save figures)
-print_folder = [features_folder, '\Graphs_', outfilename, slashchar];
+print_folder = [data_folder,'Graphs_', outfilename, ];
 display_flag = 1; %Diplay results on command window
 save_data = 1; %Save Data
+cd(main_dir);
 
 %% Preprocess Data
 

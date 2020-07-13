@@ -46,20 +46,20 @@ cell_names = {};
 %Motor Activity
 acc_metrics = process_classification_results(max(EMG_Metric.MAD_Dur,EMG_Metric.MAD_Per)>0.10, [EMG_Metric.RBD==1]);
 ConfMat_RBD_Class_Summary = confusionmat(max(EMG_Metric.MAD_Dur,EMG_Metric.MAD_Per)>0.10, EMG_Metric.RBD==1, 'order', [0 1]);
-kappaRBD = kappa_result(ConfMat_RBD_Class_Summary);
-rbd_d_anno_data(end+1,:) = [acc_metrics, kappaRBD];
+rbd_d_anno_data(end+1,:) = acc_metrics;
+
 
 %Stream
 acc_metrics = process_classification_results(EMG_Metric.Stream>30, [EMG_Metric.RBD==1]);
 ConfMat_RBD_Class_Summary = confusionmat(EMG_Metric.Stream>30, EMG_Metric.RBD==1, 'order', [0 1]);
-kappaRBD = kappa_result(ConfMat_RBD_Class_Summary);
-rbd_d_anno_data(end+1,:) = [acc_metrics, kappaRBD];
+ rbd_d_anno_data(end+1,:) = acc_metrics;
+
 
 %Atonia Index
 acc_metrics = process_classification_results(EMG_Metric.AI_REM<0.9, [EMG_Metric.RBD==1]);
 ConfMat_RBD_Class_Summary = confusionmat(EMG_Metric.AI_REM<0.9, EMG_Metric.RBD==1, 'order', [0 1]);
-kappaRBD = kappa_result(ConfMat_RBD_Class_Summary);
-rbd_d_anno_data(end+1,:) = [acc_metrics, kappaRBD];
+% kappaRBD = kappa_result(ConfMat_RBD_Class_Summary);
+ rbd_d_anno_data(end+1,:) = acc_metrics;
 
 cell_names = [['MAD (',label_name,')'],['Stream (',label_name,')'],['Atonia Index (',label_name,')'],cell_names];
 
@@ -67,8 +67,8 @@ cell_names = [['MAD (',label_name,')'],['Stream (',label_name,')'],['Atonia Inde
 for i=1:size(RBD_Yhat,2)
     acc_metrics = process_classification_results(table2array(RBD_Yhat(:,i))==1, EMG_Metric.RBD==1);
     ConfMat_RBD_Class_Summary = confusionmat(table2array(RBD_Yhat(:,i))==1, EMG_Metric.RBD==1, 'order', [0 1]);
-    kappaRBD = kappa_result(ConfMat_RBD_Class_Summary);
-    rbd_d_anno_data(end+1,:) = [acc_metrics, kappaRBD];
+%     kappaRBD = kappa_result(ConfMat_RBD_Class_Summary);
+    rbd_d_anno_data(end+1,:) = acc_metrics;
     % ['Established Metrics (',label_name,')'],['New Features (',label_name,')']
     cell_names{end+1} = [cell2mat(RBD_Yhat.Properties.VariableNames(i)),' (',label_name,')'];
 end
