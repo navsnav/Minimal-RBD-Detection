@@ -136,7 +136,7 @@ disp('Precprocessing Features...');
 disp('Precprocessing Complete.');
 
 % Random Forest paramters
-n_trees = 500;  %Paper used 500 trees (done to save time/space)
+n_trees = 50;  %Paper used 500 trees (done to save time/space)
 
 %% Cross Fold Indexing
 Sleep = table2array(Sleep_table_Pre);

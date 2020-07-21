@@ -112,8 +112,8 @@ results_f_qma_auto = zeros(folds,7);
 
 results_f_rem_auto = zeros(folds,7);
 
-results_f = zeros(num_rbd_feats,folds,7);
-results_f_auto = zeros(num_rbd_feats,folds,7);
+results_f = zeros(num_rbd_feats+3,folds,7);
+results_f_auto = zeros(num_rbd_feats+3,folds,7);
 
 posterior_struct = {};
 if isempty(prior_mat)
@@ -263,9 +263,17 @@ for out=1:folds
     results_f_qma_auto(out,:)  = process_classification_results(max([EMG_Annotated_Test_Table.MAD_Dur,EMG_Annotated_Test_Table.MAD_Per],[],2)>0.07, rbd_group(PatientTest)==1);  
     results_f_rem_auto(out,:) = process_classification_results(Yhat==5, Ytst==5);     
     
+    results_f(1,out,:) = results_f_ai;
+    results_f(2,out,:) = results_f_stream;
+    results_f(3,out,:) = results_f_qma;
+    
+    results_f_auto(1,out,:) = results_f_ai_auto;
+    results_f_auto(2,out,:) = results_f_stream_auto;
+    results_f_auto(3,out,:) = results_f_qma_auto;
+    
     for t=1:num_rbd_feats
-        results_f(t,out,:) = process_classification_results(table2array(RBD_Yhat{t})==1, rbd_group(PatientTest)==1);
-        results_f_auto(t,out,:) = process_classification_results(table2array(RBD_Auto_Yhat{t})==1, rbd_group(PatientTest)==1);        
+        results_f(3+t,out,:) = process_classification_results(table2array(RBD_Yhat{t})==1, rbd_group(PatientTest)==1);
+        results_f_auto(3+t,out,:) = process_classification_results(table2array(RBD_Auto_Yhat{t})==1, rbd_group(PatientTest)==1);        
     end
     
 end
@@ -288,16 +296,27 @@ if (view_results)
    rbd_detect_name0 = 'Atonia Index (Annotated)';
    rbd_detect_name5 = 'STREAM (Annotated)';
    rbd_detect_name6 = 'QMA (Annotated)';
-
+   names_all_anno = {rbd_detect_name0,rbd_detect_name5,rbd_detect_name6};
+   for t=1:num_rbd_feats
+        names_all_anno{t+3} = RBD_Detection_Feats.labels{t};
+   end   
+   
    tablename = 'Summary_RBD_Detection_Annotated';  
-   print_rbd_detection_results_all(results_f_ai,results_f_stream,results_f_qma,squeeze(results_f(1,:,:)),squeeze(results_f(2,:,:)),squeeze(results_f(3,:,:)),squeeze(results_f(4,:,:)),rbd_detect_name0,RBD_Detection_Feats.labels{1},RBD_Detection_Feats.labels{2},RBD_Detection_Feats.labels{3},RBD_Detection_Feats.labels{4},rbd_detect_name5,rbd_detect_name6,tablename,print_figures,print_folder); 
+   
+   print_rbd_detection_results_all2(results_f_all,names_all_anno,tablename,print_figures,print_folder)
+%    print_rbd_detection_results_all(results_f_ai,results_f_stream,results_f_qma,squeeze(results_f(1,:,:)),squeeze(results_f(2,:,:)),squeeze(results_f(3,:,:)),squeeze(results_f(4,:,:)),rbd_detect_name0,RBD_Detection_Feats.labels{1},RBD_Detection_Feats.labels{2},RBD_Detection_Feats.labels{3},RBD_Detection_Feats.labels{4},rbd_detect_name5,rbd_detect_name6,tablename,print_figures,print_folder); 
 
    %Print Comparison of RBD Detection (Automated)
    rbd_detect_name0 = 'Atonia Index (Automated)';
    rbd_detect_name5 = 'STREAM (Automated)';
    rbd_detect_name6 = 'QMA (Automated)';   
+   names_all_auto = {rbd_detect_name0,rbd_detect_name5,rbd_detect_name6};
+   for t=1:num_rbd_feats
+        names_all_auto{t+3} = RBD_Detection_Feats.labels{t};
+   end   
    tablename = 'Summary_RBD_Detection_Automated';  
-   print_rbd_detection_results_all(results_f_ai_auto,results_f_stream_auto,results_f_qma_auto,squeeze(results_f_auto(1,:,:)),squeeze(results_f_auto(2,:,:)),squeeze(results_f_auto(3,:,:)),squeeze(results_f_auto(4,:,:)),rbd_detect_name0,RBD_Detection_Feats.labels{1},RBD_Detection_Feats.labels{2},RBD_Detection_Feats.labels{3},RBD_Detection_Feats.labels{4},rbd_detect_name5,rbd_detect_name6,tablename,print_figures,print_folder); 
+%    print_rbd_detection_results_all(results_f_ai_auto,results_f_stream_auto,results_f_qma_auto,squeeze(results_f_auto(1,:,:)),squeeze(results_f_auto(2,:,:)),squeeze(results_f_auto(3,:,:)),squeeze(results_f_auto(4,:,:)),rbd_detect_name0,RBD_Detection_Feats.labels{1},RBD_Detection_Feats.labels{2},RBD_Detection_Feats.labels{3},RBD_Detection_Feats.labels{4},rbd_detect_name5,rbd_detect_name6,tablename,print_figures,print_folder); 
+   print_rbd_detection_results_all2(results_f_auto,names_all_auto,tablename,print_figures,print_folder)
 
    %Compare RBD Detection (annotated)
     label_name = 'Annotated';

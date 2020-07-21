@@ -1,4 +1,4 @@
-function prepare_capslpdb(filename,outputfolder,std_flg)
+function prepare_capslpdb(filename,outputfolder,EEG_electrode,std_flg)
 % This function prepares data from raw edf/txt files of PSG recordings.
 % Specifically preparing data for each subject that provides neccessary
 % signals (eg. EEG, EOG, EMG etc). Data is saved in mat format within
@@ -47,6 +47,25 @@ fls = arrayfun(@(x) x.name,fls,'UniformOutput',false);
 genderage = readtable('gender-age.xlsx');
 CLASSES = {'W','S1','S2','S3','R'};
 
+if strcmp(EEG_electrode,'C4')
+    EEG_labels = 'C4-A1|C4A1';
+    EEG_labels2 = 'C3-A2|C3A2';
+    EEG_labels3a = '(C4)';
+    EEG_labels3b = '(A1)';
+    
+elseif strcmp(EEG_electrode,'FP')
+    EEG_labels = 'FP1-A1|FP1A1'; 
+    EEG_labels2 = 'C4-A1|C4A1';
+    EEG_labels3a = '(C4)';
+    EEG_labels3b = '(A1)';    
+else
+    EEG_labels = 'C4-A1|C4A1'; 
+    EEG_labels2 = 'C3-A2|C3A2';
+    EEG_labels3a = '(C4)';
+    EEG_labels3b = '(A1)';
+    
+end
+
 if isempty(std_flg)
    std_flg = 0; 
 end
@@ -78,13 +97,13 @@ for f = 1:length(fls)
     patinfo.chlabels = {'EEG','EOG','EMG','ECG','MIC','CHEST'};
     
     %% Getting EEG
-    idxeeg = find(~cellfun(@isempty, regexp(hdr.label,'C4-A1|C4A1')));
+    idxeeg = find(~cellfun(@isempty, regexp(hdr.label,EEG_labels)));
     if isempty(idxeeg)
-        idxeeg = find(~cellfun(@isempty, regexp(hdr.label,'C3-A2|C3A2')));
+        idxeeg = find(~cellfun(@isempty, regexp(hdr.label,EEG_labels2)));
     end
     if isempty(idxeeg)
-        idxeeg = find(~cellfun(@isempty, regexp(hdr.label,'(C4)')));
-        idxeeg = [idxeeg,find(~cellfun(@isempty, regexp(hdr.label,'(A1)')))];
+        idxeeg = find(~cellfun(@isempty, regexp(hdr.label,EEG_labels3a)));
+        idxeeg = [idxeeg,find(~cellfun(@isempty, regexp(hdr.label,EEG_labels3b)))];
     end
     
     % sanity check for multiple channels
