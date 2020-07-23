@@ -1,4 +1,4 @@
-function HRV=get_hrv(hrv_now)
+function HRV=get_hrv(hrv_now,mRR_all)
 % Loads QRS peak detector location file and calculates all heart rate
 % variability features (HRV).
 %
@@ -95,6 +95,7 @@ HRV=struct; % create HRV structure
 NN=1000*(hrv_now(:,1)-hrv_now(1,1));  % convert data points to time (ms)
 
 NN_int_sec=1000*hrv_now(:,2); % find NN intervals (ms)
+RR_norm = NN_int_sec/mRR_all;
 
 NN_mat=[NN,NN_int_sec]; %(ms)
 
@@ -215,6 +216,138 @@ else
 [C,~,~]=calc_lz_complexity(bin_sig, 'exhaustive', 1);
 
 HRV.LZ=C;
+end
+%% Mutal Information
+
+for k=1:8
+    MI(k) = mutual_information(NN_int_sec(1:end-(k-1)),NN_int_sec(k:end));
+end
+
+MI_BP = mutual_information(NN_int_sec(1:end-1),NN_int_sec(2:end));
+
+HRV.MI_BD = MI(1)-MI(2);
+HRV.MI_PD = MI(1)-min(MI(3:end));
+
+%% Auto-correlation
+R = crosscorr(NN_int_sec,NN_int_sec);
+
+HRV.MI_BDa = R(1)-R(2);
+HRV.MI_PDa = R(1)-max(R(3:8));
+
+%% Zero crosssing
+
+% Resample
+% NN_int_sec_4Hz = resample(NN_int_sec,4,1);
+NN_int_sec_4Hz = interp1(0:length(NN_int_sec)-1,NN_int_sec,0:1/4:length(NN_int_sec)-0.25,'spline')';
+
+ZCr = sum(abs(diff(NN_int_sec_4Hz>mean(NN_int_sec_4Hz))))/length(NN_int_sec_4Hz);
+
+ZC = abs(diff(NN_int_sec_4Hz>mean(NN_int_sec_4Hz)));
+
+ZCdiff = diff(ZC);
+
+[I,J] = find(ZC==0); 
+
+Idiff = diff(I);
+A2 = diff([zeros(1,1);ZC==0;zeros(1,1)],[],1);
+out_mtx = [];
+row = A2;
+zero_lengths = find(row == -1) - find(row == 1);
+
+HRV.ZCI = sum(zero_lengths);
+HRV.mZCI = mean(zero_lengths);
+HRV.nsZCI = HRV.ZCI/HRV.mZCI;
+
+%% Normalised feats
+
+HRV.mRR_norm = mean(RR_norm);
+
+HRV.medRR_norm=median(RR_norm);
+
+HRV.SDNN_norm=std(RR_norm); 
+
+% Power SPectral Density analysis ***** FOR UNEVEN TIME SPACING??? *****
+NN_mat_norm = [NN,RR_norm];
+if length(NN_mat_norm(:,2))>3
+[Pxx,F]=plomb(NN_mat_norm(:,2)-mean(NN_mat_norm(:,2)),NN_mat_norm(:,1)./1000,0.001:0.001:0.7);
+
+[~,vlow_index]=min(abs(F-vlow_thresh));
+[~,low_index]=min(abs(F-low_thresh));
+[~,mid_index]=min(abs(F-mid_thresh));
+[~,high_index]=min(abs(F-high_thresh));
+
+% VLF=Pxx(vlow_index:low_index);
+LF=Pxx(low_index+1:mid_index);
+HF=Pxx(mid_index+1:high_index);
+
+% [~,very_low_peak_index]=max(VLF);
+[~,low_peak_index]=max(LF);
+[~,high_peak_index]=max(HF);
+
+% HRV.VLF_peak=F(very_low_peak_index);
+HRV.LF_peak_norm=F(low_peak_index+low_index);
+HRV.HF_peak_norm=F(high_peak_index+mid_index);
+
+HRV.total_power_norm=trapz(F,Pxx)*1000000;
+if vlow_index~=1
+%     HRV.VLF_power=trapz(F(vlow_index-1:low_index),Pxx(vlow_index-1:low_index))*1000000;%sum(VLF)*1000000;
+    HRV.LF_power_norm=trapz(F(low_index-1:mid_index),Pxx(low_index-1:mid_index))*1000000;%sum(LF)*1000000;
+    HRV.HF_power_norm=trapz(F(mid_index-1:high_index),Pxx(mid_index-1:high_index))*1000000;%sum(HF)*1000000;
+elseif low_index~=1
+%     HRV.VLF_power=trapz(F(vlow_index:low_index),Pxx(vlow_index:low_index))*1000000;%sum(VLF)*1000000;
+    HRV.LF_power_norm=trapz(F(low_index-1:mid_index),Pxx(low_index-1:mid_index))*1000000;%sum(LF)*1000000;
+    HRV.HF_power_norm=trapz(F(mid_index-1:high_index),Pxx(mid_index-1:high_index))*1000000;%sum(HF)*1000000;
+elseif mid_index~=1
+%     HRV.VLF_power=trapz(F(vlow_index:low_index),Pxx(vlow_index:low_index))*1000000;%sum(VLF)*1000000;
+    HRV.LF_power_norm=trapz(F(low_index:mid_index),Pxx(low_index:mid_index))*1000000;%sum(LF)*1000000;
+    HRV.HF_power_norm=trapz(F(mid_index-1:high_index),Pxx(mid_index-1:high_index))*1000000;%sum(HF)*1000000;
+elseif high_index<length(Pxx)
+%     HRV.VLF_power=trapz(F(vlow_index:low_index),Pxx(vlow_index:low_index))*1000000;%sum(VLF)*1000000;
+    HRV.LF_power_norm=trapz(F(low_index:mid_index),Pxx(low_index:mid_index))*1000000;%sum(LF)*1000000;
+    HRV.HF_power_norm=trapz(F(mid_index:high_index+1),Pxx(mid_index:high_index+1))*1000000;%sum(HF)*1000000;
+else
+%     HRV.VLF_power=trapz(F(vlow_index:low_index),Pxx(vlow_index:low_index))*1000000;%sum(VLF)*1000000;
+    HRV.LF_power_norm=trapz(F(low_index:mid_index),Pxx(low_index:mid_index))*1000000;%sum(LF)*1000000;
+    HRV.HF_power_norm=trapz(F(mid_index:high_index),Pxx(mid_index:high_index))*1000000;%sum(HF)*1000000;    
+end
+
+HRV.LF_power_norm2=100*HRV.LF_power_norm/(trapz(F,Pxx)*1000000);
+HRV.HF_power_norm2=100*HRV.HF_power_norm/(trapz(F,Pxx)*1000000);
+
+HRV.LF_HF_ratio_norm=HRV.LF_power_norm/HRV.HF_power_norm;
+else
+    HRV.VLF_power_norm=NaN;
+    HRV.LF_power_norm=NaN;
+    HRV.HF_power_norm=NaN;
+
+    HRV.LF_power_norm2=NaN;
+    HRV.HF_power_norm2=NaN;
+
+    HRV.LF_HF_ratio_norm=NaN;
+end
+
+HRV.SD1_norm=sqrt(var(((1/sqrt(2))*RR_norm(1:end-1))-((1/sqrt(2))*RR_norm(2:end))));
+HRV.SD2_norm=sqrt(abs((2*std(RR_norm(:))^2)-HRV.SD1_norm^2));
+
+if length(RR_norm(:))<5
+    HRV.saen_norm=NaN;
+    HRV.apen_norm=NaN;
+else
+    HRV.saen_norm = SampEn( 2, 0.2*std(RR_norm(:)), RR_norm(:) );
+    HRV.apen_norm = ApEn( 2, 0.2*std(RR_norm(:)), RR_norm(:), 1);
+end
+
+
+% Teager-Kaiser Energy Operator
+HRV.TKEO_norm=mean(TKEO(RR_norm(:)));
+
+%% Zero crosssing
+
+% Resample
+% NN_int_sec_4Hz = resample(NN_int_sec,4,1);
+
+
+
 end
 
 

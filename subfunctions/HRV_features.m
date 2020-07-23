@@ -1,4 +1,4 @@
-function feat=HRV_features(ecg,qrs,fs)
+function feat=HRV_features(ecg,qrs,fs,mRR_all)
 % This function obtains a series of HRV features from ECG segment.
 %
 % --
@@ -40,10 +40,11 @@ function feat=HRV_features(ecg,qrs,fs)
 if size(qrs,1) > size(qrs,2); qrs = qrs';end % check column or row vector
 
 % HRV features
-hrv_now=[qrs(2:end);diff(qrs)];
-HRV=get_hrv(hrv_now');
-AFEv = comput_AFEv(hrv_now(2,:)'); % sample code feature
-hrv_all=[AFEv struct2array(HRV)];
+hrv_now=[qrs(2:end);diff(qrs)]; %hrv_now: [Time index (s);time difference (s)];
+HRV=get_hrv(hrv_now',mRR_all); 
+[AFEv,IrrEv,OriginCount,PACEv] = comput_AFEv(hrv_now(2,:)'); % sample code feature
+
+hrv_all=[AFEv,IrrEv,OriginCount,PACEv,struct2array(HRV)];
 
 
 

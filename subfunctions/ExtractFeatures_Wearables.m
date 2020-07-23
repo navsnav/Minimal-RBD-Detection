@@ -96,7 +96,7 @@ for f=1:length(fls)
     load([dbpath fls{f}]);
     disp(['Extracting Features From: ',fls{f}]);
     %%
-    patinfo.chlabels = fieldnames(data); %delete when replaced with preprocess function
+%     patinfo.chlabels = fieldnames(data); %delete when replaced with preprocess function
     %
     
     hyp_cap = labels;

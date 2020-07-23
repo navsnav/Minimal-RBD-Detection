@@ -57,7 +57,7 @@ prepare_capslpdb(outputfolder,outputfolder,std_flg);
 
 %% (C) Extract PSG Signals - Use this section if you have a dataset of mat files with hypnogram datasets
 current_dir = pwd;
-data_folder = [main_dir,'\data\'];
+data_folder = [main_dir,'data\'];
 output_filename = 'Features_CAP_Test.mat';
 
 signals_for_processing = {'EEG','EOG','EMG','EEG-EOG','ECG'};
@@ -156,16 +156,17 @@ disp(['Initiating ',num2str(folds),' fold cross validation with ',num2str(n_tree
 [RBD_Yhat_Results] = SS_RBD_Detection(Sleep_table_Pre,Sleep_Struct,rbd_group,indices,folds,SS_Features,RBD_Detection_Feats,n_trees,view_results,print_figures,print_folder,save_data,outfilename,display_flag,prior_mat);
 
 %% SS Detection Only
-% % % Apply cross fold validation for automated sleep staging followed by RBD
-% % % detection using established metrics and new metrics
-% % prior_mat = 0;
-% if isempty(prior_mat)
-%     disp(['Initiating ',num2str(folds),' fold cross validation with ',num2str(n_trees),' trees.']);
-% else    
-%     disp(['Initiating ',num2str(folds),' fold cross validation with ',num2str(n_trees),' trees and priors.']);
-% end
-% [Auto_SS_Results,RBD_New_Results,EMG_Est_Results,EMG_Auto_New_Results,EMG_Auto_Est_Results,All_Confusion] = SS_Detection2(Sleep_table_Pre,Sleep_Struct,rbd_group,indices,folds,SS_Features,EMG_est_feats,EMG_feats,ECG_feats,n_trees,view_results,print_figures,print_folder,save_data,outfilename,display_flag,prior_mat);
-% %
+% Apply cross fold validation for automated sleep staging followed by RBD
+% detection using established metrics and new metrics
+prior_mat = 0;
+if isempty(prior_mat)
+    disp(['Initiating ',num2str(folds),' fold cross validation with ',num2str(n_trees),' trees.']);
+else    
+    disp(['Initiating ',num2str(folds),' fold cross validation with ',num2str(n_trees),' trees and priors.']);
+end
+
+[Auto_SS_Results,RBD_New_Results,EMG_Est_Results,EMG_Auto_New_Results,EMG_Auto_Est_Results,All_Confusion] = SS_Detection(Sleep_table_Pre,Sleep_Struct,rbd_group,indices,folds,SS_Features,EMG_est_feats,EMG_feats,ECG_feats,n_trees,view_results,print_figures,print_folder,save_data,outfilename,display_flag,prior_mat);
+
 %% RBD Detection Only
 
 % prior_mat = [];

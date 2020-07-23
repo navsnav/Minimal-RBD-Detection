@@ -19,7 +19,7 @@
 % //            Roberta Colloca -
 % //			Julien Oster	-
 
-function AFEv = comput_AFEv(segment)
+function [AFEv,IrrEv,OriginCount,PACEv] = comput_AFEv(segment)
 
 %comput_AFEv takes the RR intervals segment (column vector) 
 %and computes AFEv
