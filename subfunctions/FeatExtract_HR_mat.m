@@ -59,10 +59,15 @@ for n=1:size(signal5,2)
 end
 
 % get rr features
-if size(all_qrs,1) > size(all_qrs,2); all_qrs = all_qrs';end % check column or row vector
+if size(all_qrs,1) > size(all_qrs,2)
+    all_qrs = all_qrs';
+    all_qrs_idx = all_qrs_idx';
+end % check column or row vector
 
 % HRV features
 hrv_now=[all_qrs(2:end);diff(all_qrs)];
+hrv_idx_now=[all_qrs_idx(2:end);diff(all_qrs_idx)];
+
 hrv_now_all = hrv_now;
 %% Averaging Window
 
@@ -86,123 +91,19 @@ all_HRV=get_hrv_all(hrv_now'); %use raw qrs rr's
 
 clear signal5;
 % Plot to see detected QRS peaks
-fig1 = figure;
-plot(hr_signal);
-hold on
-plot(all_qrs_idx,hr_signal(all_qrs_idx),'r*');
-xlabel('Sample');
-ylabel('HR Signal');
-title(subject,'interpreter','none');
+% fig1 = figure;
+% plot(hr_signal);
+% hold on
+% plot(all_qrs_idx,hr_signal(all_qrs_idx),'r*');
+% xlabel('Sample');
+% ylabel('HR Signal');
+% title(subject,'interpreter','none');
 % saveas(fig1,[dbpath,subject],'fig');
 %% averaging window for RR
 
 %% Create sliding 5min signal buffer
 signal5min = reshape(signal,numel(signal),1);
 
-% t = 0:1/fs:length(signal5min)/fs-1/fs;
-% fig_hr = figure;
-% plot(t,hr_signal)
-% hold on
-% plot(t(all_qrs_idx),signal5min(all_qrs_idx),'r*');
-% title([subject,'_qrs'],'Interpreter','none');
-% xlabel('Time (s)');
-% ylabel('ECG');
-% saveas(fig_hr,[dbpath,'\',subject,'_qrs'],'fig');
-% close(fig_hr);
-
-% rem_idx = ismember(hyp(:,1),5);
-% rem_time = hyp(rem_idx,2);
-% 
-% rem_qrs_idx = (rem_time <= all_qrs )&(all_qrs <= rem_time+30);
-% fig_l = figure;
-% for i=1:size(rem_qrs_idx,1)
-%     rem_all_qrs = all_qrs(rem_qrs_idx(i,:));
-%     deltaRRi = diff(diff(rem_all_qrs));
-%     deltaRRi2 = deltaRRi(2:end);
-%     deltaRRi1 = deltaRRi(1:end-1);
-%     plot(deltaRRi2,deltaRRi1,'r.');    
-%     hold on;    
-% end
-% title([subject,'_REM_lorenz'],'Interpreter','none');
-% xlabel('delta RR(i)');
-% ylabel('delta RR(i-1)');
-% xlim([-1,1]);
-% ylim([-1,1]);
-% grid on;
-% saveas(fig_l,[dbpath,subject,'REM_lorenz'],'fig');
-% close(fig_l);
-% 
-% nrem_idx = ismember(hyp(:,1),[1,2,3,4]);
-% nrem_time = hyp(nrem_idx,2);
-% nrem_qrs_idx = (nrem_time <= all_qrs )&(all_qrs <= nrem_time+30);
-% fig_l = figure;
-% for i=1:size(nrem_qrs_idx,1)
-%     nrem_all_qrs = all_qrs(nrem_qrs_idx(i,:));
-%     deltaRRi = diff(diff(nrem_all_qrs));
-%     deltaRRi2 = deltaRRi(2:end);
-%     deltaRRi1 = deltaRRi(1:end-1);
-%     plot(deltaRRi2,deltaRRi1,'b.');    
-%     hold on;    
-% end
-% title([subject,'_NREM_lorenz'],'Interpreter','none');
-% xlabel('delta RR(i)');
-% ylabel('delta RR(i-1)');
-% xlim([-1,1]);
-% ylim([-1,1]);
-% grid on;
-% saveas(fig_l,[dbpath,subject,'NREM_lorenz'],'fig');
-% close(fig_l);
-% 
-% 
-% wake_idx = ismember(hyp(:,1),0);
-% wake_time = hyp(wake_idx,2);
-% wake_qrs_idx = (wake_time <= all_qrs )&(all_qrs <= wake_time+30);
-% fig_l = figure;
-% for i=1:size(wake_qrs_idx,1)
-%     wake_all_qrs = all_qrs(wake_qrs_idx(i,:));
-%     deltaRRi = diff(diff(wake_all_qrs));
-%     deltaRRi2 = deltaRRi(2:end);
-%     deltaRRi1 = deltaRRi(1:end-1);
-%     plot(deltaRRi2,deltaRRi1,'k.');    
-%     hold on;    
-% end
-% title([subject,'_WAKE_lorenz'],'Interpreter','none');
-% xlabel('delta RR(i)');
-% ylabel('delta RR(i-1)');
-% xlim([-1,1]);
-% ylim([-1,1]);
-% grid on;
-% saveas(fig_l,[dbpath,subject,'WAKE_lorenz'],'fig');
-% close(fig_l);
-%%
-
-% [I,rem_qrs_idx_col] = find(rem_qrs_idx);
-% rem_all_qrs = all_qrs(rem_qrs_idx_col);
-% fig_l = figure;
-% deltaRRi = diff(diff(rem_all_qrs));
-% deltaRRi2 = deltaRRi(2:end);
-% deltaRRi1 = deltaRRi(1:end-1);
-% plot(deltaRRi2,deltaRRi1,'r.');
-% title([subject,'_REM_lorenz'],'Interpreter','none');
-% xlabel('delta RR(i)');
-% ylabel('delta RR(i-1)');
-% xlim([-1,1]);
-% ylim([-1,1]);
-% grid on;
-
-% fig_l = figure;
-% deltaRRi = diff(diff(all_qrs));
-% deltaRRi2 = deltaRRi(2:end);
-% deltaRRi1 = deltaRRi(1:end-1);
-% plot(deltaRRi2,deltaRRi1,'.');
-% title([subject,'_lorenz'],'Interpreter','none');
-% xlabel('delta RR(i)');
-% ylabel('delta RR(i-1)');
-% xlim([-1,1]);
-% ylim([-1,1]);
-% grid on;
-% saveas(fig_l,[dbpath,subject,'_lorenz'],'fig');
-% close(fig_l);
 
 
 signal = buffer([zeros(135*fs,1);signal5min;zeros(135*fs,1)],5*60*fs,5*60*fs-30*fs,'nodelay' );
@@ -210,7 +111,7 @@ signal = buffer([zeros(135*fs,1);signal5min;zeros(135*fs,1)],5*60*fs,5*60*fs-30*
 time_pts = 0:1/fs:length(signal5min)/fs-1/fs+135+135;
 
 time_pts_buff = buffer(time_pts,5*60*fs,5*60*fs-30*fs,'nodelay' );
-
+time_pts_buff2 = time_pts_buff - 135;
 %% Get Features
 
 
@@ -223,15 +124,24 @@ for n=1:size(signal,2)
     sig_seg = signal(:,n);
    
     time_range = time_pts_buff(:,n);
+    time_range2 = time_pts_buff2(:,n);
+    
     time_range_idx = (hrv_now_all(1,:)>time_range(1)) & (hrv_now_all(1,:)<time_range(end));
+    time_range_idx2 = (hrv_now_all(1,:)>time_range2(1)) & (hrv_now_all(1,:)<time_range2(end));    
+    
     hrv_now_orig = hrv_now_all(:,time_range_idx);
     hrv_now_orig(1,:) = hrv_now_orig(1,:)-time_range(1);    
-    
 
+    hrv_now_orig2 = hrv_now_all(:,time_range_idx2);
+    hrv_idx_now_orig2 = (hrv_idx_now(:,time_range_idx2)+135*fs)-(n-1)*epoch_time*fs;    %Add 135s offset and substract no. of 30s epoch
+    
     % HRV features (using P&T - 2)
     if length(hrv_now_orig(1,:))>5 % if too few detections, returns zeros
         try
-            feat_basic=HRV_features4(sig_seg,hrv_now_orig(1,:),fs,all_HRV.mRR);
+%             feat_basic=HRV_features(sig_seg,hrv_now_orig(1,:),fs,all_HRV.mRR);
+%             Old Version
+            feat_basic=HRV_features(sig_seg,hrv_now_orig2(1,:),fs,all_HRV.mRR);
+            
             feat_hrv = [feat_basic];
 
 %                 feats_poincare = get_poincare(qrsseg{end}./fs,fs);
@@ -245,9 +155,15 @@ for n=1:size(signal,2)
         disp('Skipping HRV analysis due to shortage of peaks..')
         feat_hrv = zeros(1,NFEAT_hrv);
     end
+    normsig = sig_seg./median(sig_seg(hrv_idx_now_orig2(1,:))); % normalized amplitude
+    feat_amp = var(normsig(hrv_idx_now_orig2(1,:))); % QRS variations in amplitude
+    feat_amp2 = std(normsig(hrv_idx_now_orig2(1,:))); % QRS variations in amplitude
+    feat_amp3 = mean(diff(normsig(hrv_idx_now_orig2(1,:)))); % QRS variations in amplitude
 
+    
+    featqrs=[feat_amp feat_amp2 feat_amp3]; 
     % Heart Rate features
-    HRbpm = median(60./(diff(qrsseg{2})));
+    HRbpm = median(60./(diff(hrv_idx_now_orig2(1,:))));
     %obvious cases: tachycardia ( > 100 beats per minute (bpm) in adults)
     feat_tachy = normcdf(HRbpm,120,20); % sampling from normal CDF
     %See e.g.   x = 10:10:200; p = normcdf(x,120,20); plot(x,p)
@@ -265,7 +181,7 @@ for n=1:size(signal,2)
 %         feats_morph = morphofeatures(sig_segraw,fs,qrsseg,[fname '_s' num2str(n)]);
     feats_morph=[];
 
-    feat_fer=[featqrs,feat_tachy,feat_brady,double(feats_sqi),featsres,feats_morph];
+    feat_fer=[featqrs,feat_tachy,feat_brady,double(feats_sqi),featsres,feats_morph]; % THIS NEEDS TO CHANGE (HRbmp and qrsseg{2} need to be updated)
     feat_fer(~isreal(feat_fer)|isnan(feat_fer)|isinf(feat_fer)) = 0; % removing not numbers
 
     % Save features to table for training
