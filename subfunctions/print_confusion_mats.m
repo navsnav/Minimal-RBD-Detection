@@ -44,7 +44,12 @@ function    All_Confusion = print_confusion_mats(Sleep,Sleep_Struct,Yhat,print_f
 
 num_subjects = unique(Sleep(:,1));
 Subject = fieldnames((Sleep_Struct));   
-
+num_states = unique(Yhat);
+if length(num_states) >3
+    state_labels = {'W','N1','N2','N3','R'};
+else
+    state_labels = {'W','NREM','R'};
+end
 
 for i=1:length(num_subjects)
 
@@ -55,7 +60,7 @@ for i=1:length(num_subjects)
     sensi = metrics(2);
     speci = metrics(3);
     
-    ConfMat1{i} = confusionmat(Yhat(sub_idx), Sleep(sub_idx,7), 'order', [0 1 2 3 5]);
+    ConfMat1{i} = confusionmat(Yhat(sub_idx), Sleep(sub_idx,7), 'order', num_states);
     ConfMat3{i} = confusionmat(Yhat(sub_idx)==5, Sleep(sub_idx,7)==5, 'order', [0 1]);
     kappa(i) = kappa_result(ConfMat3{i});    
     conf_mat = ConfMat1{i}; 
@@ -79,16 +84,16 @@ for i=1:length(num_subjects)
         ylabel('Sleep Stage');
         xlabel('Epoch #');
         ylim([-0.5 6]);
-        set(gca,'YTick',[0 1 2 3 5])
-        set(gca,'YTickLabel',{'W','N1','N2','N3','R'})    
+        set(gca,'YTick',num_states)
+        set(gca,'YTickLabel',state_labels)    
         a(2) = subplot(2,1,2);
         stairs(Yhat(sub_idx),'r','LineWidth',1);
         title(['Automated Staging: REM (Acc:  ',num2str(acc,'%1.2f'),' Sen:  ',num2str(sensi,'%1.2f'),' Spe:  ',num2str(speci,'%1.2f'),')']);
         ylabel('Sleep Stage');
         xlabel('Epoch #');
         ylim([-0.5 6]);
-        set(gca,'YTick',[0 1 2 3 5])
-        set(gca,'YTickLabel',{'W','N1','N2','N3','R'})
+        set(gca,'YTick',num_states)
+        set(gca,'YTickLabel',state_labels)
         linkaxes(a,'x');
         xlim([0 length(Sleep(sub_idx,7))]);        
         if (print_figures), saveas(fig_1,strcat(print_folder,'\','RF_Hyp_Comparison_',Subject{i}),'png'), end
@@ -99,8 +104,8 @@ for i=1:length(num_subjects)
         ylabel('Sleep Stage');
         xlabel('Epoch #');
         ylim([-0.5 6]);
-        set(gca,'YTick',[0 1 2 3 5])
-        set(gca,'YTickLabel',{'W','N1','N2','N3','R'})   
+        set(gca,'YTick',num_states)
+        set(gca,'YTickLabel',state_labels)   
         hold on;
         h2a = stairs(Yhat(sub_idx),'r','DisplayName','RF Result','LineWidth',1);
         if (print_figures), saveas(fig_1b,strcat(print_folder,'\','RF_Hyp_AlignComp_',Subject{i}),'epsc'), end
@@ -119,14 +124,14 @@ for i=1:length(num_subjects)
 
 end
 % Print Combined Confusion Matrix
-    Summary_ConfMat = confusionmat(Yhat, Sleep(:,7), 'order', [0 1 2 3 5]);
+    Summary_ConfMat = confusionmat(Yhat, Sleep(:,7), 'order', num_states);
     generate_confmat(Summary_ConfMat,'Summary',print_figures,print_folder);
 % Print RBD Combined Confusion Matrix
     rbd_idx = Sleep(:,6)==5; 
-    RBD_ConfMat = confusionmat(Yhat(rbd_idx), Sleep(rbd_idx,7), 'order', [0 1 2 3 5]);
+    RBD_ConfMat = confusionmat(Yhat(rbd_idx), Sleep(rbd_idx,7), 'order', num_states);
     generate_confmat(RBD_ConfMat,'RBD_Summary',print_figures,print_folder);
 % Print HC Combined Confusion Matrix
-    HC_ConfMat = confusionmat(Yhat(~rbd_idx), Sleep(~rbd_idx,7), 'order', [0 1 2 3 5]);
+    HC_ConfMat = confusionmat(Yhat(~rbd_idx), Sleep(~rbd_idx,7), 'order', num_states);
     generate_confmat(HC_ConfMat,'HC_Summary',print_figures,print_folder);
     
     All_Confusion = ConfMat1;

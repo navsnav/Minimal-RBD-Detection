@@ -53,7 +53,7 @@ list_of_files = {
 download_CAP_EDF_Annotations(outputfolder,list_of_files);
 %Prepare mat files with PSG signals and annotations
 std_flg = 0;
-prepare_capslpdb(outputfolder,outputfolder,std_flg);
+prepare_capslpdb(outputfolder,outputfolder,'C4',std_flg);
 
 %% (C) Extract PSG Signals - Use this section if you have a dataset of mat files with hypnogram datasets
 current_dir = pwd;
@@ -61,6 +61,7 @@ data_folder = [main_dir,'data\'];
 output_filename = 'Features_CAP_Test.mat';
 
 signals_for_processing = {'EEG','EOG','EMG','EEG-EOG','ECG'};
+% signals_for_processing = {'EEG','EOG','EMG','ECG'};
 
 disp(['Extracting Features:',signals_for_processing]);
 % % % Generate Features
@@ -69,7 +70,7 @@ std_flag = 0;
 filt_flag = 1;
 [Sleep, Sleep_Struct, Sleep_table] = ExtractFeatures_mat(data_folder,signals_for_processing,std_flag,filt_flag);
 
-output_folder = [pwd,'\features'];
+output_folder = [data_folder,'features'];
 % Create a destination directory if it doesn't exist
 if exist(output_folder, 'dir') ~= 7
     fprintf('WARNING: Output directory does not exist. Creating new directory ...\n\n');

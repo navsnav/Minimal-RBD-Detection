@@ -1,5 +1,5 @@
-function print_results(Sleep,Yhat_Results,states,print_figures,print_folder,display_flag)
-
+function [Accuracy,Sensitivity,Specificity,Precision,F1,CohenKapppa3S] = print_results(Sleep,Yhat_Results,states,print_figures,print_folder,display_flag)
+CohenKapppa3S = [];
 num_subjects = unique(Sleep(:,1));
 
 %% Generate for each Subject the Sleep Staging Performance (acc/sensi/speci/preci/recall/F1/Cohen)
@@ -22,6 +22,9 @@ for i=1:length(num_subjects)
         kappa = kappa_result(ConfMat_SS_REM_Summary);
         CohenKappa(j,i) = kappa;
     end
+    ConfMat_SS_Summary = confusionmat(Yhat_Results(subject_idx), Sleep(subject_idx,7), 'order', states);
+    kappa3S = kappa_result(ConfMat_SS_Summary);   
+    CohenKapppa3S(i) =kappa3S;
     rbd(i) = all(Sleep(subject_idx,6)==5);
     
 end
