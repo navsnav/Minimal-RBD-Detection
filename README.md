@@ -25,7 +25,7 @@ An additional random forest classifier is provided to achieve RBD detection usin
 | Class  | Description |
 | ----- | -------------------:|
 | 0 | Healthy Control |
-| 1 | Potential RBD Individual |
+| 1 | RBD Individual |
 
 * Matlab Random Forest Model - Sleep Staging (`data` folder)
 * Matlab Random Forest Model - RBD Detection  (`data` folder)
